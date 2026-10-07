@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  ig-scrape:
+    build: .
+    volumes:
+      - ./out:/app/out
+      - ./config.json:/app/config.json:ro
+    environment:
+      - LOG_LEVEL=info
+      - LOG_JSON=0
+    # Override CMD with your target:
+    # docker compose run ig-scrape --profile someuser --comments --followers --following
+    command: ["--help"]

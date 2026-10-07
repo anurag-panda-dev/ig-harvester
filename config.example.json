@@ -1,0 +1,18 @@
+{
+  "profile": "someuser",
+  "posts": 50,
+  "comments": true,
+  "followers": true,
+  "following": true,
+  "shots": false,
+  "outDir": "out",
+  "cdp": "http://127.0.0.1:9222",
+  "headful": true,
+  "minDelay": 900,
+  "maxDelay": 2600,
+  "proxy": null,
+  "sqlite": true,
+  "resume": true,
+  "logLevel": "info",
+  "logJson": false
+}

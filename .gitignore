@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+
+# Output data (never commit scraped data)
+out/
+*.db
+*.db-shm
+*.db-wal
+
+# Cache
+.cache.db
+.cache.db-shm
+.cache.db-wal
+
+# Chrome profile (contains session cookies — NEVER commit)
+ig-profile/
+chrome-profile/
+
+# Config with real targets / proxies
+config.json
+config.local.json
+
+# Screenshots
+screenshots/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Env
+.env
+.env.local
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Analyzer
+analyzer.log
+*.analyzer.db
