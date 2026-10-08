@@ -6,7 +6,7 @@
 param([switch]$SkipBrowser)
 
 $ErrorActionPreference = 'Stop'
-Set-Location $PSScriptRoot
+Set-Location (Split-Path -Parent $PSScriptRoot)   # repository root (this script lives in dependencies\)
 
 Write-Host "`n[1/3] npm install" -ForegroundColor Cyan
 npm install --silent
@@ -48,6 +48,6 @@ $json | ConvertTo-Json -Depth 12 | Set-Content $target -Encoding utf8
 Write-Host "  config: $target" -ForegroundColor DarkGray
 
 Write-Host "`nNext:" -ForegroundColor Cyan
-Write-Host "  .\launch-chrome-debug.ps1                       # log in once"
-Write-Host "  node scrape-ig.mjs --profile TARGET --comments --followers --following"
+Write-Host "  .\dependencies\launch-chrome-debug.ps1         # log in once"
+Write-Host "  node dependencies\scrape-ig.mjs --profile TARGET --comments --followers --following"
 Write-Host ""

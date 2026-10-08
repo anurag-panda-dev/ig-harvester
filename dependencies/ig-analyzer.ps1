@@ -10,10 +10,10 @@
   Version     : 2.0.0
 
   Usage:
-    .\ig-analyzer.ps1
-    .\ig-analyzer.ps1 --user someuser
-    .\ig-analyzer.ps1 --port 8080
-    .\ig-analyzer.ps1 --dir out/someuser
+    .\dependencies\ig-analyzer.ps1
+    .\dependencies\ig-analyzer.ps1 --user someuser
+    .\dependencies\ig-analyzer.ps1 --port 8080
+    .\dependencies\ig-analyzer.ps1 --dir out/someuser
 
   Requirements:
     - Node.js >= 20
@@ -67,7 +67,7 @@ if ($RemainingArgs) {
 }
 
 $ErrorActionPreference = 'Stop'
-Set-Location $PSScriptRoot
+Set-Location (Split-Path -Parent $PSScriptRoot)   # repository root (this script lives in dependencies\)
 
 # ── Banner ────────────────────────────────────────────────────────
 $banner = @"
@@ -112,28 +112,54 @@ try {
 
 # ── 2. Check data ─────────────────────────────────────────────────
 Write-Host "[2/3] Checking scraped data..." -ForegroundColor Yellow
-$outDir = Join-Path $PSScriptRoot 'out'
-if (-not (Test-Path $outDir)) {
-  Write-Host "  [FAIL] No out/ directory found!" -ForegroundColor Red
-  Write-Host "  Run ig-harvester first: .\start.ps1 --profile someuser" -ForegroundColor Yellow
-  exit 1
-}
 
-$users = Get-ChildItem -Path $outDir -Directory -ErrorAction SilentlyContinue
-if (-not $users) {
-  Write-Host "  [FAIL] No scraped data found in out/" -ForegroundColor Red
-  Write-Host "  Run ig-harvester first: .\start.ps1 --profile someuser" -ForegroundColor Yellow
-  exit 1
+if ($Dir) {
+  # --dir points straight at a data folder: out/<user>, IG-DATA/<user>,
+  # IG-DATA/<user>/latest or IG-DATA/<user>/runs/<timestamp>.
+  if (-not (Test-Path -LiteralPath $Dir)) {
+    Write-Host "  [FAIL] Directory not found: $Dir" -ForegroundColor Red
+    exit 1
+  }
+  $dump = @(Get-ChildItem -LiteralPath $Dir -Filter '*.json' -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -notmatch '^(index|analytics|package|tsconfig)' })
+  if (-not $dump) {
+    $nested = Join-Path $Dir 'latest'
+    if (Test-Path -LiteralPath $nested) {
+      $dump = @(Get-ChildItem -LiteralPath $nested -Filter '*.json' -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notmatch '^(index|analytics|package|tsconfig)' })
+    }
+  }
+  if (-not $dump) {
+    Write-Host "  [FAIL] No scraped .json dump found in: $Dir" -ForegroundColor Red
+    Write-Host "  Expected <username>.json (written by ig-harvester)." -ForegroundColor Yellow
+    exit 1
+  }
+  Write-Host "  [OK] Using data dir: $Dir  ($($dump[0].Name))" -ForegroundColor Green
 }
+else {
+  $outDir = Join-Path (Split-Path -Parent $PSScriptRoot) 'out'   # repository root/out
+  if (-not (Test-Path $outDir)) {
+    Write-Host "  [FAIL] No out/ directory found!" -ForegroundColor Red
+    Write-Host "  Run ig-harvester first: .\dependencies\start.ps1 --profile someuser" -ForegroundColor Yellow
+    exit 1
+  }
 
-Write-Host "  [OK] Found $($users.Count) scraped user(s): $($users.Name -join ', ')" -ForegroundColor Green
+  $users = Get-ChildItem -Path $outDir -Directory -ErrorAction SilentlyContinue
+  if (-not $users) {
+    Write-Host "  [FAIL] No scraped data found in out/" -ForegroundColor Red
+    Write-Host "  Run ig-harvester first: .\dependencies\start.ps1 --profile someuser" -ForegroundColor Yellow
+    exit 1
+  }
+
+  Write-Host "  [OK] Found $($users.Count) scraped user(s): $($users.Name -join ', ')" -ForegroundColor Green
+}
 
 # ── 3. Start analyzer ─────────────────────────────────────────────
 Write-Host "[3/3] Starting ig-analyzer..." -ForegroundColor Green
 Write-Host ""
 
 # Build arguments
-$analyzerArgs = @('ig-analyzer.mjs')
+$analyzerArgs = @('dependencies\ig-analyzer.mjs')
 if ($User) { $analyzerArgs += "--user", $User }
 if ($Port -ne 8080) { $analyzerArgs += "--port", $Port }
 if ($Dir) { $analyzerArgs += "--dir", $Dir }

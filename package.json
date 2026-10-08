@@ -5,16 +5,19 @@
   "type": "module",
   "description": "Production-ready Playwright Instagram OSINT collector with resume caching, proxy support, and modular architecture.",
   "scripts": {
-    "scrape": "node scrape-ig.mjs",
-    "shots": "node scrape-ig.mjs --shots-only",
-    "shot": "node scrape-ig.mjs --shot-only",
-    "analyze": "node ig-analyzer.mjs",
-    "analyze:user": "node ig-analyzer.mjs --user",
+    "scrape": "node dependencies/scrape-ig.mjs",
+    "shots": "node dependencies/scrape-ig.mjs --shots-only",
+    "shot": "node dependencies/scrape-ig.mjs --shot-only",
+    "images": "node dependencies/ig-images.mjs",
+    "analyze": "node dependencies/ig-analyzer.mjs",
+    "analyze:user": "node dependencies/ig-analyzer.mjs --user",
+    "report": "node dependencies/report.mjs",
     "test": "node --test tests/*.test.mjs",
-    "lint": "node --check scrape-ig.mjs && node --check src/cli.mjs && node --check ig-analyzer.mjs"
+    "lint": "node --check dependencies/scrape-ig.mjs && node --check dependencies/ig-images.mjs && node --check dependencies/ig-analyzer.mjs && node --check dependencies/report.mjs && node --check src/cli.mjs && node --check src/images-cli.mjs && node --check src/config.mjs && node --check src/extractors/dom.mjs && node --check src/scraper/grid-report.mjs && node --check src/scraper/images.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
+    "jimp": "^1.6.1",
     "playwright": "^1.48.0"
   },
   "engines": {

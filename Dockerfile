@@ -28,5 +28,5 @@ COPY . .
 # Create output directory
 RUN mkdir -p /app/out
 
-ENTRYPOINT ["node", "scrape-ig.mjs"]
+ENTRYPOINT ["node", "dependencies/scrape-ig.mjs"]
 CMD ["--help"]

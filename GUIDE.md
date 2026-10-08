@@ -11,6 +11,7 @@
 - [Workflow Overview](#workflow-overview)
 - [Quick Start](#quick-start)
 - [CLI Reference](#cli-reference)
+- [Single Entry Point (ig-harvester.ps1)](#single-entry-point-ig-harvesterps1)
 - [Output Structure](#output-structure)
 - [Analytics](#analytics)
 - [OSINT Techniques](#osint-techniques)
@@ -68,12 +69,12 @@ git clone https://github.com/anurag-panda-dev/ig-harvester.git
 cd ig-harvester
 
 # 2. One-click setup & run (Windows)
-.\start.ps1 --profile someuser --comments --followers --following
+.\dependencies\start.ps1 --profile someuser --comments --followers --following
 
 # Or manual:
 npm install
-.\launch-chrome-debug.ps1
-node scrape-ig.mjs --profile someuser --posts 50 --comments --followers --following --sqlite
+.\dependencies\launch-chrome-debug.ps1
+node dependencies/scrape-ig.mjs --profile someuser --posts 50 --comments --followers --following --sqlite
 ```
 
 ---
@@ -84,7 +85,7 @@ node scrape-ig.mjs --profile someuser --posts 50 --comments --followers --follow
 |---|---|---|
 | `--profile <name>` | – | Target username |
 | `--url <url>` | – | Full Instagram URL instead of username |
-| `--posts N` | `30` | Max posts to scrape |
+| `--posts N\|all` | `30` | Max posts to scrape - `all` (or `0`) = every post the grid serves |
 | `--comments` | off | Harvest post comments with full threads |
 | `--followers` | off | Harvest follower list (all) |
 | `--following` | off | Harvest following list (all) |
@@ -98,10 +99,82 @@ node scrape-ig.mjs --profile someuser --posts 50 --comments --followers --follow
 | `--config FILE` | – | JSON config file |
 | `--sqlite` | off | Also write SQLite database |
 | `--no-resume` | – | Disable resume cache |
+| `--force` | off | `ig-images`: re-download files already on disk (redo a bad run) |
 | `--delay-min N` | `900` | Min delay between requests (ms) |
 | `--delay-max N` | `2600` | Max delay between requests (ms) |
 | `--log-level` | `info` | `debug` / `info` / `warn` / `error` |
 | `--json-log` | off | Structured JSON logging |
+
+---
+
+## Single Entry Point (ig-harvester.ps1)
+
+Everything in this guide can be launched from one script. Run it bare for
+the menu, or name the job directly:
+
+```powershell
+.\ig-harvester.ps1                               # interactive menu
+.\ig-harvester.ps1 scrape someuser --posts 50     # one job + forwarded flags
+.\ig-harvester.ps1 scrape someuser --posts all    # every post, no 30-post cap
+.\ig-harvester.ps1 -Action Full -User someuser -Yes
+.\ig-harvester.ps1 -Action Help                   # full reference
+```
+
+| Menu | `-Action` | Does |
+|---|---|---|
+| 1 Scrape | `Scrape` | JSON/CSV/SQLite harvest |
+| 2 Images | `Images` | full-resolution PNGs |
+| 3 Scrape+Images | `ScrapeImages` | both in one go (aliases `Both`, `Combo`) |
+| 4 Report | `Report` | report + index (`-Reindex` = every profile) |
+| 5 Analyze | `Analyze` | dashboard (`-Port`, default 8080) |
+| 6 Archive | `Archive` | `out/<user>` → `IG-DATA` (+ report) |
+| 7 Pipeline | `Full` | Scrape → Images → Archive with a step summary |
+| 8 Browser | `Browser` | debug Chrome on port 9222 |
+| 9 Setup | `Setup` | npm + Playwright Chromium + MCP config |
+| 10 Doctor | `Doctor` | environment health check (alias `Status`) |
+| 11 Tests | `Tests` | `npm run lint` + `npm test` |
+| 12 Help | `Help` | CLI reference (also `-Help` / `-h`) |
+| 0 Exit | - | leave the menu |
+
+Working notes for the sections below:
+
+- **Target once**: `-User someuser` (or positional), or a full `-Url` - in
+  menu mode the target prompt comes first and is pre-filled with
+  `-DefaultUser` (**anur.panda**).
+- **Settings in menu mode**: right after the username you are walked through
+  the run settings (posts - a number or `all` - comments, followers,
+  following, screenshots, SQLite, re-download, headless, output dir), shown
+  the session line and asked `Run ... with current settings? [Y/n]`.
+- **Every flag passes through** in GNU form, including the equals shape:
+  `--delay-min 1200 --json-log --no-resume --profile=someuser`.
+- **`-DryRun`** previews the exact commands; **`-Yes`** answers every
+  prompt with its default (CI / cron) and never opens a menu.
+- **Exit codes**: `0` success · `1` step/preflight failed · `2` usage or
+  cancelled input — safe to chain: `.\ig-harvester.ps1 -Action Scrape -User x -Yes; if ($LASTEXITCODE -ne 0) { exit 1 }`.
+
+---
+
+### Fewer posts than the profile claims?
+
+Post links are read from the **profile grid**, so a run only returns what
+Instagram serves to the session you are attached to:
+
+| What you see | Why | What to do |
+|---|---|---|
+| exactly `30` posts, the header claims more | the default `--posts 30` cap | `--posts 500`, or `--posts all` for every post (`-Posts all` / `-AllPosts` in the harvester) |
+| `12` / `24` / `36` posts | the grid stopped paginating (slow or gated layout) | re-run - the resume cache continues where it stopped - and read the `grid: N permalink(s) - <reason>` line, which names the exact stop reason |
+| `0` posts plus `This account is private` | the logged-in session does not follow the target, or the follow is still pending (`Requested`) | attach Chrome logged in as the burner that already follows the account; a pending request serves nothing |
+| `0` posts and no warning | the profile does not exist (or is blocked) | check the spelling and the account status |
+
+Both entry points print `grid stopped early: N of M posts found` when the
+profile header is higher than what the grid returned, and an explicit error
+for the private wall, so a missing-post problem is always explained in the
+log instead of showing up as a silent short list.
+
+> **Private accounts**: a burner that already *follows* a private profile sees
+> the same grid as any other follower. Only two things break that - the
+> browser being logged into a different account, and the follow request not
+> having been accepted yet. Always confirm consent before collecting data.
 
 ---
 
@@ -119,6 +192,7 @@ out/
     someuser-following.csv    # One row per following (--following)
     someuser.db               # SQLite database (--sqlite)
     screenshots/*.png         # Screenshots (--shots)
+    images/*.png              # Post images (dependencies/ig-images.mjs)
     .cache.db                 # Resume cache (internal)
 ```
 
@@ -274,26 +348,59 @@ sqlite3 out/someuser/someuser.db "SELECT * FROM posts ORDER BY likes DESC LIMIT 
 
 ---
 
+## ig-images — Post Image Downloader
+
+Standalone tool that saves every post image (each carousel slide too) as a
+real PNG named after the post timestamp:
+
+```text
+someuser-2026-10-08-143022-01.png     single photo / first slide
+someuser-2026-10-08-143022-02.png     second carousel slide
+```
+
+```bash
+node dependencies/ig-images.mjs --profile someuser --posts 50
+# -> out/someuser/images/*.png
+```
+
+- **Date/time** is the post timestamp in your local timezone
+- **`01`..`NN`** is the carousel position, so ordering survives even when a
+  slide is a video (video slides are saved as their poster frame — or a
+  screenshot of the rendered slide when no poster exists)
+- **Carousels are clicked through** — the tool presses the post's **Next**
+  button slide by slide and reads each slide's full-resolution `<img>` from
+  the DOM (the JSON sidecar source is no longer shipped in the page, and
+  `og:image` would only ever be slide 1 at a cropped 640px)
+- **Real PNGs** — converted with `jimp`; undecodable sources keep their
+  original bytes and true extension
+- **Resume** — files already on disk are skipped, so re-running continues
+  where an interrupted run stopped; add **`--force`** to re-download
+  everything (e.g. to replace files from an older broken run)
+- Uses the shared flags (`--posts`, `--out`, `--cdp`, `--proxy`,
+  `--delay-min/--delay-max`, `--log-level`) and collects nothing else
+
+---
+
 ## ig-analyzer — Live OSINT Dashboard
 
 After scraping, analyze the data with a live web dashboard:
 
 ```bash
 # Auto-detect latest scraped user
-node ig-analyzer.mjs
+node dependencies/ig-analyzer.mjs
 
 # Specific user
-node ig-analyzer.mjs --user someuser
+node dependencies/ig-analyzer.mjs --user someuser
 
 # Custom port
-node ig-analyzer.mjs --port 8080
+node dependencies/ig-analyzer.mjs --port 8080
 
 # Custom data directory
-node ig-analyzer.mjs --dir out/someuser
+node dependencies/ig-analyzer.mjs --dir out/someuser
 
 # One-click (Windows)
-.\ig-analyzer.ps1
-.\ig-analyzer.ps1 --user someuser --port 8080
+.\dependencies\ig-analyzer.ps1
+.\dependencies\ig-analyzer.ps1 --user someuser --port 8080
 ```
 
 The dashboard opens at `http://localhost:8080` and includes:
@@ -312,7 +419,7 @@ The dashboard opens at `http://localhost:8080` and includes:
 
 | Problem | Fix |
 |---|---|
-| "No CDP endpoint" | Run `.\launch-chrome-debug.ps1` first |
+| "No CDP endpoint" | Run `.\dependencies\launch-chrome-debug.ps1` first |
 | "Not logged in" | Log into Instagram in the Chrome window |
 | 429 / challenge | Increase `--delay-min` / `--delay-max` |
 | Missing posts | Instagram lazy-loads; increase scroll wait |
@@ -336,12 +443,16 @@ The dashboard opens at `http://localhost:8080` and includes:
 ## Architecture
 
 ```
-scrape-ig.mjs              — entry point (scraper)
-ig-analyzer.mjs            — entry point (live OSINT dashboard)
-start.ps1                  — one-click setup & run (Windows)
-ig-analyzer.ps1            — one-click dashboard (Windows)
+ig-harvester.ps1            — single entry point: interactive menu + every action (root)
+dependencies/
+  scrape-ig.mjs             — entry point (scraper)
+  ig-analyzer.mjs           — entry point (live OSINT dashboard)
+  ig-images.mjs             — entry point (post image downloader)
+  start.ps1                 — one-click setup & run (Windows)
+  ig-analyzer.ps1           — one-click dashboard (Windows)
 src/
   cli.mjs                  — orchestration
+  images-cli.mjs           — orchestration (ig-images)
   config.mjs               — config loading (defaults < file < CLI)
   browser.mjs              — CDP attach, proxy, auth gate
   extractors/
@@ -354,6 +465,7 @@ src/
     users.mjs              — follower/following lists (unlimited)
     analytics.mjs          — OSINT metrics
     screenshot.mjs         — screenshots
+    images.mjs             — post image download, PNG naming/conversion
   storage/
     cache.mjs              — SQLite cache (resume)
     output.mjs             — JSON/CSV/SQLite writers
@@ -372,7 +484,16 @@ src/
 npm test
 ```
 
-Runs unit tests for parsers (count parsing, timestamps, URL extraction).
+Runs unit tests for parsers (count parsing, timestamps, URL extraction), the
+JSON media miner (carousel sidecar children — order-independent field
+parsing), and the `ig-images` filename/format helpers. An offline
+end-to-end check of the image downloader lives in `tests/images.e2e.mjs` —
+run it with `node tests/images.e2e.mjs` (launches a local page, no network);
+it includes a carousel that is clicked through slide by slide.
+
+`tests/live-probe.mjs` is a diagnostic that attaches to the debug Chrome and
+walks real Instagram posts, printing each slide it collects — useful when
+Instagram changes the page and the selectors need re-checking.
 
 ---
 

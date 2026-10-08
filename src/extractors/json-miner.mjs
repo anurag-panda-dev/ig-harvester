@@ -34,24 +34,75 @@ function extractBlock(blob, startPos) {
   return null;
 }
 
-/** Extract all sidecar children (carousel media) from the blob. */
-export function extractSidecarChildren(blob) {
+/** Locate the sidecar (carousel children) block; optionally near a shortcode. */
+function sidecarBlock(blob, shortcode = null) {
+  // Newer payloads renamed the field — accept both spellings
+  const keyRe = /"(?:edge_sidecar_to_children|xdt_api__v1__media__sidecar_children)":\s*\{/;
+
+  if (shortcode) {
+    // Prefer the block belonging to THIS post (pages can embed other posts)
+    const scRe = new RegExp(`"shortcode"\\s*:\\s*"${String(shortcode).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')}"`);
+    const at = blob.search(scRe);
+    if (at > -1) {
+      const scoped = blob.slice(at, at + 100_000).match(keyRe);
+      if (scoped) {
+        const block = extractBlock(blob, at + scoped.index + scoped[0].length - 1);
+        if (block) return block;
+      }
+    }
+  }
+
+  const match = blob.match(keyRe);
+  if (!match) return null;
+  return extractBlock(blob, match.index + match[0].length - 1);
+}
+
+/** Unescape a JSON string value (\" \\ \/ \uXXXX). */
+const unesc = (s) => s.replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+                      .replace(/\\\//g, '/')
+                      .replace(/\\"/g, '"')
+                      .replace(/\\\\/g, '\\');
+
+/**
+ * Extract all sidecar children (carousel media) from the blob.
+ *
+ * Each `"node"` block is parsed field-by-field, so field order cannot break
+ * extraction (Instagram reorders freely between payloads). Pass the post's
+ * `shortcode` to pin the block to that post.
+ */
+export function extractSidecarChildren(blob, { shortcode = null } = {}) {
   if (!blob) return [];
-  const match = blob.match(/"edge_sidecar_to_children":\s*\{/);
-  if (!match) return [];
-  const startPos = match.index + match[0].length - 1;
-  const block = extractBlock(blob, startPos);
+  const block = sidecarBlock(blob, shortcode);
   if (!block) return [];
 
   const children = [];
-  const nodeRe = /"node":\s*\{[^}]*?"__typename":\s*"(\w+)"[^}]*?"display_url":\s*"([^"]+)"[^}]*?"is_video":\s*(true|false)(?:[^}]*?"video_url":\s*"([^"]+)")?/g;
+  const nodeRe = /"node":\s*\{/g;
   let m;
   while ((m = nodeRe.exec(block)) !== null) {
+    const start = m.index + m[0].length - 1;
+    const nodeBlock = extractBlock(block, start);
+    if (!nodeBlock) continue;
+    nodeRe.lastIndex = start + nodeBlock.length; // never re-parse nested text
+
+    const grab = (re) => {
+      const g = nodeBlock.match(re);
+      return g ? g[1] : undefined;
+    };
+    const displayUrl = grab(/"display_url":\s*"((?:[^"\\]|\\.)+)"/);
+    const videoUrl   = grab(/"video_url":\s*"((?:[^"\\]|\\.)+)"/);
+    const typename   = grab(/"__typename":\s*"(\w+)"/);
+    const isVideoRaw = grab(/"is_video":\s*(true|false)/);
+    const mediaType  = grab(/"media_type":\s*(\d+)/); // IG API: 1 photo, 2 video, 8 carousel
+
+    if (!displayUrl && !videoUrl) continue; // not a media node
+    const isVideo = isVideoRaw === 'true' ||
+                    (!isVideoRaw && (typename === 'GraphVideo' || !!videoUrl || mediaType === '2'));
+
     children.push({
-      type     : m[1], // GraphImage, GraphVideo, etc.
-      displayUrl: m[2].replace(/\\\//g, '/'),
-      isVideo  : m[3] === 'true',
-      videoUrl : m[4] ? m[4].replace(/\\\//g, '/') : null,
+      type      : typename || (isVideo ? 'GraphVideo' : 'GraphImage'),
+      displayUrl: displayUrl ? unesc(displayUrl) : null,
+      isVideo,
+      videoUrl  : videoUrl ? unesc(videoUrl) : null,
     });
   }
   return children;

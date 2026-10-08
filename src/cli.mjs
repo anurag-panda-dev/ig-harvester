@@ -6,7 +6,9 @@ import path from 'node:path';
 import { resolveConfig, validateConfig } from './config.mjs';
 import { connectBrowser, ensureAuthenticated, safeGoto } from './browser.mjs';
 import { scrapeProfile } from './scraper/profile.mjs';
+import { detectProfileGate } from './extractors/dom.mjs';
 import { getPostLinks, scrapePosts } from './scraper/posts.mjs';
+import { explainShortGrid } from './scraper/grid-report.mjs';
 import { scrapeUserList } from './scraper/users.mjs';
 import { takeScreenshot } from './scraper/screenshot.mjs';
 import { computeAnalytics } from './scraper/analytics.mjs';
@@ -67,8 +69,22 @@ export async function run() {
     const profile = await scrapeProfile(page, USER);
     if (cfg.shots) await takeScreenshot(page, `${USER}-profile`, { fullPage: true, outDir: cfg.outDir });
 
+    // Private wall / follow state — say WHY the grid may be empty before scrolling.
+    const gate = await detectProfileGate(page);
+    if (gate.isPrivateWall) {
+      if (gate.followState === 'following') {
+        logger.warn('private profile: this session follows it but Instagram still shows the wall - reload the page or re-login and retry');
+      } else if (gate.followState === 'requested') {
+        logger.error('private profile: the follow request is still PENDING ("Requested") - Instagram serves no posts until it is accepted');
+      } else {
+        logger.error('private profile: this session does NOT follow the account - log in as the burner account that follows it');
+      }
+    } else if (gate.followState === 'requested') {
+      logger.warn('follow request pending ("Requested")');
+    }
+
     // Posts
-    logger.info(`Collecting post links (target: ${cfg.maxPosts})...`);
+    logger.info(`Collecting post links (target: ${cfg.maxPosts === Infinity ? 'all' : cfg.maxPosts})...`);
     await page.evaluate(() => window.scrollTo(0, 0));
     await humanDelay();
 
@@ -78,6 +94,25 @@ export async function run() {
       },
     });
     logger.info(`found ${links.length} permalinks`);
+
+    // Reconcile what the header promises with what the grid actually served.
+    const expected = profile.posts ?? null;
+    const cap = cfg.maxPosts === Infinity ? Infinity : cfg.maxPosts;
+    const short = expected ? links.length < Math.min(expected, cap) : links.length === 0;
+
+    if (short && expected) {
+      logger.warn(
+        `grid stopped early: ${links.length} of ${expected} posts found` +
+        (links.length === 0
+          ? ' - private wall / not following (see the warnings above)'
+          : ' - slow grid, private wall or an Instagram pagination limit; re-run to resume (--posts all removes our own cap)')
+      );
+    } else if (!short && expected && cap !== Infinity && expected > cap) {
+      logger.info(`${links.length} of ${expected} posts requested - raise --posts or pass --posts all for every post`);
+    }
+    if (short) {
+      await explainShortGrid(page, USER, cfg);
+    }
 
     const progress = new ProgressBar(links.length, 'posts');
     const posts = await scrapePosts(page, links, {

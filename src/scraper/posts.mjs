@@ -39,7 +39,7 @@ export async function scrapePosts(page, links, { wantComments, cache, onProgress
       const d = await scrapePostDom(page);
 
       // Carousel / sidecar media
-      const sidecarChildren = extractSidecarChildren(blob);
+      const sidecarChildren = extractSidecarChildren(blob, { shortcode });
       const carouselDom = await scrapeCarouselDom(page);
 
       // Determine media items — sidecar JSON is the most reliable source

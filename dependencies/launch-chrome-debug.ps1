@@ -6,7 +6,7 @@
   session, cookies and passwords completely away from the scraper.
 
   Usage:
-    .\launch-chrome-debug.ps1
+    .\dependencies\launch-chrome-debug.ps1
 #>
 [CmdletBinding()]
 param(
@@ -51,7 +51,7 @@ if ($ok) {
   Write-Host "CDP is live on http://127.0.0.1:9222" -ForegroundColor Green
   Write-Host "1. Log into a BURNER Instagram account in that window (2FA code from your phone)."
   Write-Host "2. Leave the window open."
-  Write-Host "3. Then run:  node scrape-ig.mjs --profile TARGETUSERNAME"
+  Write-Host "3. Then run:  node dependencies\scrape-ig.mjs --profile TARGETUSERNAME"
   Write-Host ""
   Write-Host "Verify with:  Invoke-RestMethod http://127.0.0.1:9222/json/version"
 } else {

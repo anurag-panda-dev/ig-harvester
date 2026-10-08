@@ -105,14 +105,19 @@ export function computeAnalytics({ profile, posts, followers, following }) {
     const mostLiked = [...posts].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 5);
     const mostCommented = [...posts].sort((a, b) => (b.commentCount || 0) - (a.commentCount || 0)).slice(0, 5);
 
+    // Mutually exclusive content mix: reels > carousels > photos
+    const reelPosts = posts.filter(p => p.type === 'reel').length;
+    const carouselPosts = posts.filter(p => p.isCarousel && p.type !== 'reel').length;
+    const photoPosts = posts.filter(p => !p.isCarousel && p.type !== 'reel').length;
+
     analytics.content = {
       topHashtags,
       topMentions,
       mostLiked: mostLiked.map(p => ({ shortcode: p.shortcode, likes: p.likes, url: p.url })),
       mostCommented: mostCommented.map(p => ({ shortcode: p.shortcode, comments: p.commentCount, url: p.url })),
-      carouselPosts: posts.filter(p => p.isCarousel).length,
-      reelPosts: posts.filter(p => p.type === 'reel').length,
-      photoPosts: posts.filter(p => p.type === 'photo').length,
+      carouselPosts,
+      reelPosts,
+      photoPosts,
     };
   }
 

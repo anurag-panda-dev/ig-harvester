@@ -6,10 +6,10 @@
  * with a high-level analyzed dashboard for OSINT reporting.
  *
  * Usage:
- *   node ig-analyzer.mjs                          # auto-detect latest
- *   node ig-analyzer.mjs --user someuser          # specific user
- *   node ig-analyzer.mjs --port 8080              # custom port
- *   node ig-analyzer.mjs --dir out/someuser       # custom data dir
+ *   node dependencies/ig-analyzer.mjs                          # auto-detect latest
+ *   node dependencies/ig-analyzer.mjs --user someuser          # specific user
+ *   node dependencies/ig-analyzer.mjs --port 8080              # custom port
+ *   node dependencies/ig-analyzer.mjs --dir out/someuser       # custom data dir
  *
  * Author  : Anurag Panda
  * GitHub  : https://github.com/anurag-panda-dev/ig-harvester
@@ -19,7 +19,7 @@
 import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { computeAnalytics } from './src/scraper/analytics.mjs';
+import { computeAnalytics } from '../src/scraper/analytics.mjs';
 
 // ── Args ──────────────────────────────────────────────────
 const argv = process.argv.slice(2);
@@ -63,8 +63,51 @@ async function findDataDir() {
 }
 
 // ── Load data ──────────────────────────────────────────────
+// The dump is <username>.json, but the folder holding it is not always
+// named after the username: IG-DATA keeps the current import in `latest/`
+// and each snapshot in `runs/<timestamp>/`, so basename() alone would
+// look for `latest.json`. Try the obvious names, then scan, then look
+// one level down (a profile folder keeps its dump in latest/).
+const DUMP_SKIP = /^(index|analytics|package|tsconfig)/i;
+
+async function findDump(dataDir, depth = 0) {
+  const candidates = [
+    path.join(dataDir, `${path.basename(dataDir)}.json`),
+    path.join(dataDir, `${path.basename(path.dirname(dataDir))}.json`),
+    path.join(dataDir, 'latest', `${path.basename(dataDir)}.json`),
+  ];
+
+  for (const p of candidates) {
+    if (await fs.access(p).then(() => true, () => false)) return p;
+  }
+
+  const entries = await fs.readdir(dataDir, { withFileTypes: true }).catch(() => []);
+  const dumps = entries
+    .filter(e => e.isFile() && e.name.endsWith('.json') && !DUMP_SKIP.test(e.name))
+    .map(e => path.join(dataDir, e.name));
+
+  if (dumps.length) {
+    // Several dumps side by side — the biggest is the fullest capture.
+    const sizes = await Promise.all(
+      dumps.map(async p => (await fs.stat(p).catch(() => ({ size: 0 }))).size),
+    );
+    return dumps[sizes.indexOf(Math.max(...sizes))];
+  }
+
+  if (depth === 0 && entries.some(e => e.isDirectory() && e.name === 'latest')) {
+    return findDump(path.join(dataDir, 'latest'), depth + 1);
+  }
+
+  return null;
+}
+
 async function loadData(dataDir) {
-  const jsonPath = path.join(dataDir, `${path.basename(dataDir)}.json`);
+  const jsonPath = await findDump(dataDir);
+  if (!jsonPath) {
+    console.error(`No scraped .json dump found in ${dataDir}`);
+    console.error('Expected <username>.json (written by ig-harvester).');
+    process.exit(1);
+  }
   const raw = await fs.readFile(jsonPath, 'utf8');
   return JSON.parse(raw);
 }

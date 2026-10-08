@@ -34,9 +34,11 @@ export function sanitizeText(s) {
   return String(s).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').replace(/\s+/g, ' ').trim();
 }
 
-/** Extract shortcode from a permalink path like /p/ABC123/ or /username/p/ABC123/ */
+/** Extract shortcode from a permalink path like /p/ABC123/ or /username/p/ABC123/
+ *  The path segment after p/reel/tv *is* the shortcode — callers pass
+ *  permalinks already shape-checked by the grid collector. */
 export function extractShortcode(href) {
-  const m = href.match(/\/(?:[\w.-]+\/)?(?:p|reel|tv)\/([A-Za-z0-9_-]{11,30})/);
+  const m = href.match(/\/(?:[\w.-]+\/)?(?:p|reel|tv)\/([A-Za-z0-9_-]+)/);
   return m ? m[1] : undefined;
 }
 

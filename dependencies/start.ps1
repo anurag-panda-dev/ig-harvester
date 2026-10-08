@@ -11,9 +11,9 @@
   Version     : 2.0.0
 
   Usage:
-    .\start.ps1
-    .\start.ps1 --profile someuser --comments --followers --following
-    .\start.ps1 --profile someuser --posts 50 --sqlite --proxy http://127.0.0.1:8080
+    .\dependencies\start.ps1
+    .\dependencies\start.ps1 --profile someuser --comments --followers --following
+    .\dependencies\start.ps1 --profile someuser --posts 50 --sqlite --proxy http://127.0.0.1:8080
 
   Requirements:
     - Node.js >= 20
@@ -27,7 +27,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-Set-Location $PSScriptRoot
+Set-Location (Split-Path -Parent $PSScriptRoot)   # repository root (this script lives in dependencies\)
 
 # ── Banner ────────────────────────────────────────────────────────
 $banner = @"
@@ -144,7 +144,7 @@ Write-Host "  [!] Log into Instagram in the Chrome window if prompted." -Foregro
 Write-Host "  [!] The scraper will wait up to 5 minutes." -ForegroundColor Yellow
 Write-Host ""
 
-$allArgs = @('scrape-ig.mjs') + $ScrapeArgs
+$allArgs = @('dependencies\scrape-ig.mjs') + $ScrapeArgs
 & node @allArgs
 
 Write-Host ""
