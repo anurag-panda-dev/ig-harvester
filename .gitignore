@@ -54,3 +54,6 @@ temp/
 # Analyzer
 analyzer.log
 *.analyzer.db
+
+# Local promo articles (published to dev.to / Hashnode, not shipped with the repo)
+promo/
