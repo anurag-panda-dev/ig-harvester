@@ -95,87 +95,221 @@
 
   <style>
     :root {
-      --bg: #0d1117; --panel: #161b22; --border: #30363d;
-      --text: #e6edf3; --muted: #9198a1; --accent: #58a6ff; --green: #3fb950;
+      --bg: #0d1117; --bg-soft: #10161d; --panel: #161b22; --panel-2: #1b2230;
+      --border: #30363d; --border-soft: #21262d;
+      --text: #e6edf3; --muted: #9198a1; --dim: #6e7681;
+      --accent: #58a6ff; --green: #3fb950; --purple: #bc8cff; --orange: #f0883e;
+      --radius: 12px;
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0; background: var(--bg); color: var(--text);
-      font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
-    header { padding: 56px 0 32px; text-align: center; }
-    header img { max-width: 100%; border-radius: 12px; }
-    h1 { font-size: 2.2rem; margin: 24px 0 8px; }
-    .tagline { color: var(--muted); font-size: 1.1rem; margin: 0 auto; max-width: 640px; }
-    .badges { margin-top: 18px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    img { max-width: 100%; height: auto; }
+    .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 46px 0; border-top: 1px solid var(--border-soft); scroll-margin-top: 64px; }
+    h2 {
+      font-size: 1.6rem; margin: 0 0 6px; letter-spacing: -.01em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h2::before {
+      content: ""; width: 4px; height: 22px; border-radius: 3px;
+      background: linear-gradient(180deg, var(--accent), var(--purple)); flex: none;
+    }
+    h3 { font-size: 1.08rem; margin: 26px 0 10px; }
+    .sub { color: var(--muted); margin: 0 0 20px; }
+    p.lead { font-size: 1.06rem; }
+
+    /* ---------- Nav ---------- */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(13,17,23,.88); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .nav .wrap { display: flex; align-items: center; gap: 18px; height: 56px; }
+    .nav .brand { font-weight: 700; color: var(--text); font-size: .98rem; white-space: nowrap; }
+    .nav .brand:hover { text-decoration: none; color: var(--accent); }
+    .nav .brand .dot { color: var(--green); }
+    .nav nav { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; }
+    .nav nav::-webkit-scrollbar { display: none; }
+    .nav nav a { color: var(--muted); font-size: .88rem; white-space: nowrap; }
+    .nav nav a:hover { color: var(--text); text-decoration: none; }
+    .nav .gh {
+      margin-left: auto; color: var(--text); border: 1px solid var(--border);
+      padding: 5px 12px; border-radius: 8px; font-size: .85rem; font-weight: 600; white-space: nowrap;
+    }
+    .nav .gh:hover { background: var(--panel); text-decoration: none; }
+
+    /* ---------- Hero ---------- */
+    header.hero {
+      text-align: center; padding: 52px 0 44px; position: relative; overflow: hidden;
+      background:
+        radial-gradient(600px 240px at 50% -40px, rgba(88,166,255,.18), transparent 70%),
+        radial-gradient(500px 260px at 85% 10%, rgba(188,143,255,.12), transparent 70%);
+    }
+    .hero .banner {
+      display: inline-block; max-width: min(714px, 100%); border-radius: 10px;
+      border: 1px solid var(--border); box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    }
+    .hero h1 { font-size: 2.6rem; margin: 26px 0 6px; letter-spacing: -.02em; }
+    .hero h1 .accent {
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .tagline { color: var(--muted); font-size: 1.12rem; margin: 0 auto; max-width: 680px; }
+    .badges { margin-top: 20px; display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; }
     .badges img { height: 20px; }
     .cta { margin-top: 26px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .btn {
-      display: inline-block; padding: 11px 22px; border-radius: 8px; font-weight: 600;
-      border: 1px solid var(--border); color: var(--text);
+      display: inline-block; padding: 11px 22px; border-radius: 9px; font-weight: 600;
+      border: 1px solid var(--border); color: var(--text); background: var(--panel);
     }
     .btn.primary { background: var(--green); border-color: var(--green); color: #04210c; }
-    .btn:hover { text-decoration: none; filter: brightness(1.08); }
-    section { padding: 28px 0; border-top: 1px solid var(--border); }
-    h2 { font-size: 1.45rem; margin: 0 0 14px; }
-    p.lead { font-size: 1.05rem; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-    .card h3 { margin: 0 0 6px; font-size: 1rem; }
-    .card p { margin: 0; color: var(--muted); font-size: .92rem; }
+    .btn:hover { text-decoration: none; filter: brightness(1.1); }
+    .hero .meta { margin-top: 22px; color: var(--dim); font-size: .85rem; }
+
+    /* ---------- Cards / grids ---------- */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 14px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 17px 18px; transition: border-color .15s, transform .15s;
+    }
+    .card:hover { border-color: #3d444d; transform: translateY(-2px); }
+    .card h3 { margin: 0 0 6px; font-size: .98rem; display: flex; gap: 8px; align-items: center; }
+    .card p { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.6; }
+    .ico { font-size: 1.05rem; }
+
+    /* ---------- Code ---------- */
+    .codewrap { position: relative; margin: 12px 0 18px; }
+    .codelabel {
+      position: absolute; top: 0; right: 0; z-index: 2;
+      font: 600 .7rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 0 var(--radius) 0 9px; padding: 7px 11px;
+    }
     pre {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
-      padding: 16px; overflow-x: auto; font-size: .88rem; line-height: 1.55;
+      margin: 0; background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; overflow-x: auto;
+      font-family: var(--mono); font-size: .86rem; line-height: 1.6;
     }
-    code { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+    code { font-family: var(--mono); }
     :not(pre) > code {
-      background: rgba(110,118,129,.25); padding: 2px 6px; border-radius: 6px; font-size: .88em;
+      background: rgba(110,118,129,.25); padding: 2px 6px; border-radius: 6px; font-size: .86em;
     }
-    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
-    th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-    th { color: var(--muted); font-weight: 600; background: var(--panel); }
+    .c { color: var(--dim); }
+    .k { color: var(--purple); }
+
+    /* ---------- Tables ---------- */
+    .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 560px; }
+    th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; background: var(--panel); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(88,166,255,.05); }
     td code { white-space: nowrap; }
-    .note {
-      background: rgba(188,143,255,.08); border: 1px solid rgba(188,143,255,.35);
-      border-radius: 10px; padding: 14px 16px; font-size: .93rem; color: var(--muted);
+    td.d { color: var(--muted); }
+
+    /* ---------- Misc blocks ---------- */
+    .note, .warn {
+      border-radius: var(--radius); padding: 15px 17px; font-size: .93rem;
+      color: var(--muted); margin: 16px 0; line-height: 1.65;
     }
-    footer { padding: 30px 0 48px; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
-    .disclaimer { font-size: .88rem; color: var(--muted); }
+    .note { background: rgba(88,166,255,.07); border: 1px solid rgba(88,166,255,.3); }
+    .warn { background: rgba(240,136,62,.07); border: 1px solid rgba(240,136,62,.32); }
+    .note strong, .warn strong { color: var(--text); }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+    .pill {
+      display: inline-block; font: 600 .72rem/1 var(--mono); letter-spacing: .06em;
+      text-transform: uppercase; padding: 5px 10px; border-radius: 999px;
+      background: rgba(63,185,80,.14); color: var(--green); border: 1px solid rgba(63,185,80,.4);
+      vertical-align: middle;
+    }
+    .pill.blue { background: rgba(88,166,255,.13); color: var(--accent); border-color: rgba(88,166,255,.4); }
+    figure.shot { margin: 18px 0 0; }
+    figure.shot img {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: 0 14px 40px rgba(0,0,0,.4);
+    }
+    figure.shot figcaption { color: var(--dim); font-size: .84rem; text-align: center; margin-top: 9px; }
+    ul.clean { list-style: none; padding: 0; margin: 12px 0; }
+    ul.clean li { padding: 7px 0 7px 26px; position: relative; color: var(--muted); font-size: .94rem; }
+    ul.clean li::before { content: "▸"; position: absolute; left: 6px; color: var(--accent); }
+    ul.clean li strong, ul.clean li b { color: var(--text); }
+    dl.faq dt { font-weight: 700; margin-top: 18px; }
+    dl.faq dd { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+    footer {
+      padding: 34px 0 52px; border-top: 1px solid var(--border-soft);
+      color: var(--muted); font-size: .9rem;
+    }
+    footer .disclaimer { color: var(--dim); font-size: .85rem; margin-top: 12px; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .nav .brand { display: none; }
+      section { padding: 36px 0; }
+    }
   </style>
 </head>
 <body>
 
-  <header class="wrap">
-    <img src="assets/banner.png" alt="ig-harvester banner" width="900" height="300">
-    <h1>ig-harvester</h1>
-    <p class="tagline">Instagram OSINT Collector — a production-ready, Playwright-based scraper that drives your own logged-in Chrome via CDP.</p>
-    <div class="badges">
-      <img src="https://img.shields.io/github/v/release/anurag-panda-dev/ig-harvester?label=release&color=blue" alt="Release">
-      <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT">
-      <img src="https://img.shields.io/badge/node-%3E%3D20-orange.svg" alt="Node.js >= 20">
-      <img src="https://img.shields.io/github/stars/anurag-panda-dev/ig-harvester?style=flat&logo=github&label=stars" alt="GitHub stars">
-      <img src="https://img.shields.io/github/last-commit/anurag-panda-dev/ig-harvester" alt="Last commit">
+  <div class="nav">
+    <div class="wrap">
+      <a class="brand" href="#">ig-harvester<span class="dot"> ●</span></a>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#features">Features</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="#cli">CLI Flags</a>
+        <a href="#actions">PS1 Actions</a>
+        <a href="#output">Output</a>
+        <a href="#analytics">Analytics</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="gh" href="https://github.com/anurag-panda-dev/ig-harvester">GitHub ↗</a>
     </div>
-    <div class="cta">
-      <a class="btn primary" href="https://github.com/anurag-panda-dev/ig-harvester">View on GitHub</a>
-      <a class="btn" href="https://github.com/anurag-panda-dev/ig-harvester/releases/latest">Download v2.0.0</a>
-      <a class="btn" href="https://github.com/anurag-panda-dev/ig-harvester#quick-start">Quick Start</a>
+  </div>
+
+  <header class="hero">
+    <div class="wrap">
+      <img class="banner" src="assets/banner.png" alt="ig-harvester banner" width="714" height="84">
+      <h1><span class="accent">ig-harvester</span></h1>
+      <p class="tagline">Instagram OSINT Collector — a production-ready, Playwright-based scraper
+        that drives your own logged-in Chrome via the Chrome DevTools Protocol.</p>
+      <div class="badges">
+        <img src="https://img.shields.io/github/v/release/anurag-panda-dev/ig-harvester?label=release&color=blue" alt="Release">
+        <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT">
+        <img src="https://img.shields.io/badge/node-%3E%3D20-orange.svg" alt="Node.js &gt;= 20">
+        <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg" alt="Platform">
+        <img src="https://img.shields.io/github/stars/anurag-panda-dev/ig-harvester?style=flat&logo=github&label=stars" alt="GitHub stars">
+        <img src="https://img.shields.io/github/last-commit/anurag-panda-dev/ig-harvester" alt="Last commit">
+      </div>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/anurag-panda-dev/ig-harvester">View on GitHub</a>
+        <a class="btn" href="https://github.com/anurag-panda-dev/ig-harvester/releases/latest">Download v2.0.0</a>
+        <a class="btn" href="#quickstart">Quick Start</a>
+      </div>
+      <p class="meta">MIT licensed · Windows, macOS, Linux · 30+ CLI flags · Docker ready · Unit tested</p>
     </div>
   </header>
 
   <main class="wrap">
 
-    <section>
+    <!-- ============ ABOUT ============ -->
+    <section id="about">
       <h2>What is ig-harvester?</h2>
       <p class="lead">
         <strong>ig-harvester is a free, open-source (MIT) Instagram OSINT tool</strong> for legitimate
         research, journalism, security audits and education. It attaches to a Chrome window you are
-        already logged into (via the Chrome DevTools Protocol), so it sees exactly what your session
-        sees — then harvests a target profile into structured, analyzable data: posts, comment
-        threads with replies, follower and following lists, media URLs, hashtags and mentions.
+        already logged into (via CDP), so it sees exactly what your session sees — then harvests a
+        target profile into structured, analyzable data: posts, comment threads with replies,
+        follower and following lists, media URLs, hashtags and mentions.
       </p>
       <p>
         Everything is exported as <strong>JSON, CSV and SQLite</strong>, with a resume cache that lets
@@ -184,123 +318,443 @@
         <strong>ig-analyzer dashboard</strong> turns the harvest into engagement, posting-pattern,
         network and bio-intel metrics on a local web page.
       </p>
-    </section>
-
-    <section>
-      <h2>Features</h2>
-      <div class="grid">
+      <div class="grid" style="margin-top:22px">
         <div class="card">
-          <h3>Triple-source extraction</h3>
-          <p>Embedded Relay JSON + semantic DOM + screenshots, cross-checked for complete payloads.</p>
+          <h3><span class="ico">🧰</span> One repo, four tools</h3>
+          <p><code>scrape-ig</code>, <code>ig-images</code>, <code>ig-analyzer</code>,
+             <code>report</code> — orchestrated by a single PowerShell entry point.</p>
         </div>
         <div class="card">
-          <h3>Full profile harvest</h3>
-          <p>Posts (<code>--posts all</code>), comment threads with replies and like counts, followers, following.</p>
+          <h3><span class="ico">🕵️</span> Session-driven, no API keys</h3>
+          <p>Attaches to <strong>your</strong> logged-in Chrome over CDP — no Instagram API, no tokens,
+             nothing leaves your machine.</p>
         </div>
         <div class="card">
-          <h3>Image downloader</h3>
-          <p>Every post image and carousel slide saved as a real PNG in the original upload resolution.</p>
-        </div>
-        <div class="card">
-          <h3>Resume caching</h3>
-          <p>SQLite cache by shortcode — interrupt a run and re-run it, it continues where it stopped.</p>
-        </div>
-        <div class="card">
-          <h3>Built-in analytics</h3>
-          <p>Engagement rate, best posting hour/day, top hashtags and mentions, follower/following ratio, bio signals.</p>
-        </div>
-        <div class="card">
-          <h3>Live dashboard</h3>
-          <p><code>ig-analyzer</code> serves charts and metrics for any scraped or archived profile on localhost.</p>
-        </div>
-        <div class="card">
-          <h3>Operational security</h3>
-          <p>HTTP/SOCKS5 proxy support, jittered human-like delays, retry with exponential backoff.</p>
-        </div>
-        <div class="card">
-          <h3>Outputs &amp; deployment</h3>
-          <p>JSON / CSV / SQLite writers, structured logging, Docker image, single PowerShell entry point.</p>
+          <h3><span class="ico">📦</span> Structured everything</h3>
+          <p>JSON + CSV + SQLite out of the box, plus dated archives, Markdown reports and a master index.</p>
         </div>
       </div>
     </section>
 
-    <section>
-      <h2>Quick start</h2>
+    <!-- ============ FEATURES ============ -->
+    <section id="features">
+      <h2>Features</h2>
+      <p class="sub">Everything below is in the box — no plugins, no paid tiers.</p>
+      <div class="grid">
+        <div class="card">
+          <h3><span class="ico">🔍</span> Triple-source extraction</h3>
+          <p>Embedded Relay JSON + semantic DOM + screenshots, cross-checked for complete payloads.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🗂️</span> Full profile harvest</h3>
+          <p>Posts (<code>--posts all</code>), comment threads with replies and like counts, followers, following.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🖼️</span> Image downloader</h3>
+          <p>Every post image and carousel slide saved as a real PNG at original upload resolution, timestamped.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">⏭️</span> Resume caching</h3>
+          <p>SQLite cache by shortcode — interrupt a run and re-run it, it continues where it stopped.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📈</span> Built-in analytics</h3>
+          <p>Engagement rate, best posting hour/day, top hashtags and mentions, follower/following ratio, bio signals.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📊</span> Live dashboard</h3>
+          <p><code>ig-analyzer</code> serves charts and metrics for any scraped or archived profile on localhost.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🥷</span> Operational security</h3>
+          <p>HTTP/SOCKS5 proxy support, jittered human-like delays, retry with exponential backoff.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🛟</span> Uninterruptible runs</h3>
+          <p>Token-bucket rate limiting, progress bars, structured JSON logging and deterministic exit codes.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🐳</span> Outputs &amp; deployment</h3>
+          <p>JSON / CSV / SQLite writers, Docker image, one-click Windows scripts, MCP example config.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUICK START ============ -->
+    <section id="quickstart">
+      <h2>Quick Start</h2>
+      <p class="sub">Three steps. Prerequisites: <a href="https://nodejs.org/">Node.js ≥ 20</a>,
+        system <a href="https://www.google.com/chrome/">Chrome</a>, and a burner Instagram account
+        you are authorized to use.</p>
+
+      <h3><span class="pill">Option 1</span> PowerShell — single entry point <span class="pill blue">Windows, recommended</span></h3>
+      <p>One script drives the whole suite. Run it bare for an interactive menu, or give it an action
+        to run once (automation-friendly, exit codes propagate):</p>
+      <div class="codewrap"><span class="codelabel">PowerShell</span>
+<pre><code><span class="c"># Interactive menu — asks for the target, walks you through the run settings, confirms before running</span>
+.\ig-harvester.ps1
+
+<span class="c"># One-click setup &amp; run (installs deps, Playwright Chromium, merges MCP config)</span>
+.\dependencies\start.ps1 --profile someuser --comments --followers --following --sqlite
+
+<span class="c"># Run one action directly (aliases: Both, Combo, scrape+images)</span>
+.\ig-harvester.ps1 scrape someuser --posts 50 --comments
+.\ig-harvester.ps1 ScrapeImages someuser --posts 50 --comments
+
+<span class="c"># Non-interactive full pipeline: scrape -&gt; images -&gt; archive, with a step summary</span>
+.\ig-harvester.ps1 -Action Full -User someuser -Posts 50 -Comments -Yes
+
+<span class="c"># Preview exactly what would run, without running it</span>
+.\ig-harvester.ps1 -Action Images -User someuser -Force -DryRun
+
+<span class="c"># Environment health check (Node version, deps, CDP endpoint)</span>
+.\ig-harvester.ps1 -Action Doctor</code></pre>
+      </div>
+
+      <h3>Preparing the browser (both options)</h3>
+      <div class="codewrap"><span class="codelabel">PowerShell</span>
+<pre><code><span class="c"># 1. Launch Chrome with remote debugging on port 9222 (dedicated profile)</span>
+.\dependencies\launch-chrome-debug.ps1
+
+<span class="c"># 2. Log into a BURNER Instagram account in that window, then keep it open</span></code></pre>
+      </div>
+
+      <h3><span class="pill blue">Option 2</span> Node.js — direct CLI <span class="pill">cross-platform</span></h3>
+      <div class="codewrap"><span class="codelabel">Bash</span>
 <pre><code>git clone https://github.com/anurag-panda-dev/ig-harvester.git
 cd ig-harvester
 npm install
 
-# 1. Launch Chrome with remote debugging (dedicated profile)
-.\dependencies\launch-chrome-debug.ps1
-
-# 2. Log into a burner Instagram account in that window
-
-# 3. Harvest
+<span class="c"># Full OSINT harvest: posts + comments + follower/following lists + SQLite</span>
 node dependencies/scrape-ig.mjs --profile someuser --posts 50 --comments --followers --following --sqlite
 
-# Download every post image (carousels included)
+<span class="c"># Every post the profile grid serves (no 30-post cap)</span>
+node dependencies/scrape-ig.mjs --profile someuser --posts all
+
+<span class="c"># Download every post image (carousels included) as timestamped PNGs</span>
 node dependencies/ig-images.mjs --profile someuser --posts 50
 
-# Analyze the results
-node dependencies/ig-analyzer.mjs --user someuser</code></pre>
-      <p>Or use the interactive entry point: <code>.\ig-harvester.ps1</code> — a numbered menu that
-        walks you through settings, plus automation-friendly actions
-        (<code>Scrape</code>, <code>Images</code>, <code>Full</code>, <code>Analyze</code>, <code>Archive</code>, <code>Doctor</code>).</p>
-    </section>
+<span class="c"># Analyze the results in a live local dashboard -&gt; http://localhost:8080</span>
+node dependencies/ig-analyzer.mjs --user someuser
 
-    <section>
-      <h2>CLI flags</h2>
-      <table>
-        <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>--profile &lt;name&gt;</code></td><td>–</td><td>Target username</td></tr>
-          <tr><td><code>--posts N|all</code></td><td><code>30</code></td><td>Max posts to scrape — <code>all</code> means every post the grid serves</td></tr>
-          <tr><td><code>--comments</code></td><td>off</td><td>Harvest post comments with threads</td></tr>
-          <tr><td><code>--followers</code> / <code>--following</code></td><td>off</td><td>Harvest the full lists</td></tr>
-          <tr><td><code>--sqlite</code></td><td>off</td><td>Also write a SQLite database</td></tr>
-          <tr><td><code>--proxy URL</code></td><td>–</td><td>HTTP/SOCKS5 proxy</td></tr>
-          <tr><td><code>--cdp URL</code></td><td><code>http://127.0.0.1:9222</code></td><td>Chrome CDP endpoint</td></tr>
-          <tr><td><code>--config FILE</code></td><td>–</td><td>JSON config (defaults &lt; config &lt; CLI)</td></tr>
-          <tr><td><code>--delay-min / --delay-max</code></td><td><code>900</code> / <code>2600</code></td><td>Jittered delay between actions (ms)</td></tr>
-        </tbody>
-      </table>
-      <p><a href="https://github.com/anurag-panda-dev/ig-harvester#cli-flags">Full CLI reference in the README →</a></p>
-    </section>
+<span class="c"># With a proxy, or from a config file (defaults &lt; config.json &lt; CLI)</span>
+node dependencies/scrape-ig.mjs --profile someuser --proxy http://127.0.0.1:8080
+node dependencies/scrape-ig.mjs --config config.json</code></pre>
+      </div>
 
-    <section>
-      <h2>Output layout</h2>
-<pre><code>out/someuser/
-  someuser.json             # full payload + analytics
-  someuser-posts.csv        # one row per post
-  someuser-comments.csv     # one row per comment
-  someuser-followers.csv    # one row per follower
-  someuser-following.csv    # one row per following
-  someuser.db               # SQLite database (--sqlite)
-  screenshots/*.png         # screenshots (--shots)
-  images/*.png              # post images (ig-images)</code></pre>
-      <p>Runs can be archived into a structured <code>IG-DATA</code> store with dated snapshots,
-        per-profile reports and a master index — re-scrapes never overwrite history.</p>
-    </section>
+      <h3>npm scripts</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Script</th><th>Runs</th></tr></thead>
+          <tbody>
+            <tr><td><code>npm run scrape</code></td><td class="d">The scraper (<code>scrape-ig.mjs</code>)</td></tr>
+            <tr><td><code>npm run images</code></td><td class="d">Post image downloader (<code>ig-images.mjs</code>)</td></tr>
+            <tr><td><code>npm run analyze</code></td><td class="d">Live dashboard (<code>ig-analyzer.mjs</code>)</td></tr>
+            <tr><td><code>npm run report</code></td><td class="d">Markdown report + IG-DATA index</td></tr>
+            <tr><td><code>npm test</code></td><td class="d">Node's built-in test runner over <code>tests/*.test.mjs</code></td></tr>
+            <tr><td><code>npm run lint</code></td><td class="d">Syntax-checks every entry point and core module</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-    <section>
-      <h2>Requirements</h2>
-      <p>Node.js &gt;= 20, system <a href="https://www.google.com/chrome/">Chrome</a>, and a burner
-        Instagram account you are authorized to use. Docker is optional
-        (<code>docker build -t ig-harvester .</code>). Tests: <code>npm test</code>.</p>
-      <div class="note">
-        <strong>Ethical use:</strong> ig-harvester is intended for legitimate OSINT research,
-        journalism, security audits and education. Users are responsible for complying with
-        applicable laws, Instagram's Terms of Service and privacy regulations (GDPR, CCPA).
-        Always confirm consent before collecting data about someone.
+      <div class="note"><strong>Docker:</strong>
+<code>docker build -t ig-harvester .</code> ·
+<code>docker run -v $(pwd)/out:/app/out ig-harvester --profile someuser --comments</code> ·
+<code>docker compose run ig-harvester --profile someuser --comments --followers</code>
       </div>
     </section>
 
-    <section>
-      <h2>Links</h2>
+    <!-- ============ CLI FLAGS ============ -->
+    <section id="cli">
+      <h2>Full CLI flags reference</h2>
+      <p class="sub">Every scraper flag works in both entry points — <code>--flag value</code>,
+        <code>--flag=value</code> and PowerShell-style <code>-Flag value</code> are all accepted.
+        Unknown flags are forwarded verbatim to the Node tools.</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>--profile &lt;name&gt;</code></td><td class="d">–</td><td class="d">Target username</td></tr>
+            <tr><td><code>--url &lt;url&gt;</code></td><td class="d">–</td><td class="d">Full Instagram URL instead of a username</td></tr>
+            <tr><td><code>--posts N|all</code></td><td class="d"><code>30</code></td><td class="d">Max posts to scrape — <code>all</code> (or <code>0</code>) = every post the grid serves</td></tr>
+            <tr><td><code>--comments</code></td><td class="d">off</td><td class="d">Harvest post comments with reply threads and like counts</td></tr>
+            <tr><td><code>--followers</code></td><td class="d">off</td><td class="d">Harvest the full follower list</td></tr>
+            <tr><td><code>--following</code></td><td class="d">off</td><td class="d">Harvest the full following list</td></tr>
+            <tr><td><code>--shots</code></td><td class="d">off</td><td class="d">Capture screenshots of everything scraped</td></tr>
+            <tr><td><code>--out DIR</code></td><td class="d"><code>out</code></td><td class="d">Output directory</td></tr>
+            <tr><td><code>--cdp URL</code></td><td class="d"><code>http://127.0.0.1:9222</code></td><td class="d">Chrome DevTools Protocol endpoint to attach to</td></tr>
+            <tr><td><code>--headless</code></td><td class="d">off</td><td class="d">Run headless instead of attaching to a visible window</td></tr>
+            <tr><td><code>--proxy URL</code></td><td class="d">–</td><td class="d">HTTP or SOCKS5 proxy for operational security</td></tr>
+            <tr><td><code>--config FILE</code></td><td class="d">–</td><td class="d">JSON config file — layering is defaults &lt; config &lt; CLI (CLI wins only for flags you passed)</td></tr>
+            <tr><td><code>--sqlite</code></td><td class="d">off</td><td class="d">Also write a SQLite database alongside JSON/CSV</td></tr>
+            <tr><td><code>--no-resume</code></td><td class="d">–</td><td class="d">Disable the resume cache and start fresh</td></tr>
+            <tr><td><code>--force</code></td><td class="d">off</td><td class="d"><code>ig-images</code> only: re-download files already on disk (redo a bad run)</td></tr>
+            <tr><td><code>--delay-min N</code></td><td class="d"><code>900</code></td><td class="d">Minimum delay between actions (ms)</td></tr>
+            <tr><td><code>--delay-max N</code></td><td class="d"><code>2600</code></td><td class="d">Maximum delay between actions (ms) — jittered per request</td></tr>
+            <tr><td><code>--log-level</code></td><td class="d"><code>info</code></td><td class="d"><code>debug</code> / <code>info</code> / <code>warn</code> / <code>error</code></td></tr>
+            <tr><td><code>--json-log</code></td><td class="d">off</td><td class="d">Structured JSON logging (child loggers, machine-parseable)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Flag groups by task</h3>
+      <div class="grid">
+        <div class="card">
+          <h3><span class="ico">🎯</span> Targeting</h3>
+          <p><code>--profile</code> <code>--url</code> <code>--posts</code> <code>--config</code></p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🧩</span> What to collect</h3>
+          <p><code>--comments</code> <code>--followers</code> <code>--following</code> <code>--shots</code> <code>--sqlite</code></p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🌐</span> Connection</h3>
+          <p><code>--cdp</code> <code>--headless</code> <code>--proxy</code> <code>--out</code></p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">⏱️</span> Pacing &amp; logging</h3>
+          <p><code>--delay-min</code> <code>--delay-max</code> <code>--log-level</code> <code>--json-log</code> <code>--no-resume</code></p>
+        </div>
+      </div>
+
+      <div class="warn"><strong>Private accounts:</strong> a burner that already <em>follows</em> a
+        private profile sees the same grid as any other follower. Two things break that — the browser
+        being logged into a different account, and a follow request that hasn't been accepted yet.
+        Always confirm consent before collecting data.</div>
+    </section>
+
+    <!-- ============ PS1 ACTIONS ============ -->
+    <section id="actions">
+      <h2>ig-harvester.ps1 — actions</h2>
+      <p class="sub">Bare invocation opens a numbered, looping menu (target first, then run settings,
+        then a <code>Run … with current settings? [Y/n]</code> confirmation). Naming an action runs
+        exactly one job and returns its exit code.</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Action</th><th>Runs</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>Scrape</code></td><td class="d"><code>scrape-ig.mjs</code></td><td class="d">Posts, comments, followers/following → JSON/CSV/SQLite</td></tr>
+            <tr><td><code>Images</code></td><td class="d"><code>ig-images.mjs</code></td><td class="d">Full-resolution post images → PNG</td></tr>
+            <tr><td><code>ScrapeImages</code></td><td class="d">both</td><td class="d">Full scrape + images in one go (menu option 3; aliases <code>Both</code>, <code>Combo</code>)</td></tr>
+            <tr><td><code>Report</code></td><td class="d"><code>report.mjs</code></td><td class="d">Markdown report + IG-DATA index (<code>-Reindex</code> = every profile)</td></tr>
+            <tr><td><code>Analyze</code></td><td class="d"><code>ig-analyzer.mjs</code></td><td class="d">Local dashboard server (<code>-Port</code>)</td></tr>
+            <tr><td><code>Archive</code></td><td class="d"><code>import-data.ps1</code></td><td class="d"><code>out/&lt;user&gt;</code> → dated IG-DATA snapshot + report</td></tr>
+            <tr><td><code>Full</code></td><td class="d">pipeline</td><td class="d">Scrape → Images → Archive with a step summary</td></tr>
+            <tr><td><code>Browser</code></td><td class="d"><code>launch-chrome-debug.ps1</code></td><td class="d">Chrome with remote debugging on port 9222</td></tr>
+            <tr><td><code>Setup</code></td><td class="d">npm/npx + MCP</td><td class="d">Dependencies, Playwright Chromium, MCP config merge</td></tr>
+            <tr><td><code>Doctor</code></td><td class="d">built-in</td><td class="d">Environment diagnostics (alias <code>Status</code>)</td></tr>
+            <tr><td><code>Tests</code></td><td class="d">npm</td><td class="d"><code>npm run lint</code> + <code>npm test</code></td></tr>
+            <tr><td><code>Help</code></td><td class="d">built-in</td><td class="d">CLI reference (also <code>-Help</code> / <code>-h</code>)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="clean">
+        <li><strong>GNU passthrough</strong> — every scraper flag works in both shapes: <code>--delay-min 900 --log-level debug</code> and <code>-Posts 50 -Comments</code>.</li>
+        <li><strong>Post limits</strong> — <code>-Posts &lt;n&gt;</code> sets the cap (tools default to 30); <code>-Posts all</code>, <code>-AllPosts</code> or <code>--posts all</code> harvest everything the grid serves.</li>
+        <li><strong><code>-Yes</code></strong> = non-interactive (answers every prompt with the default); <strong><code>-DryRun</code></strong> = print the exact commands without executing them.</li>
+        <li><strong>Preflight</strong> — Node ≥ 20, npm dependencies and the CDP endpoint are checked before anything runs; if CDP is down it offers to launch Chrome for you.</li>
+        <li><strong>Exit codes</strong> — <code>0</code> success · <code>1</code> step/preflight failed · <code>2</code> usage error or cancelled input.</li>
+      </ul>
+    </section>
+
+    <!-- ============ OUTPUT ============ -->
+    <section id="output">
+      <h2>Output layout</h2>
+      <p class="sub">All files are saved inside a folder named after the username.</p>
+      <div class="codewrap"><span class="codelabel">Tree</span>
+<pre><code>out/someuser/
+  someuser.json             <span class="c"># full payload + analytics</span>
+  someuser-posts.csv        <span class="c"># one row per post</span>
+  someuser-comments.csv     <span class="c"># one row per comment</span>
+  someuser-followers.csv    <span class="c"># one row per follower</span>
+  someuser-following.csv    <span class="c"># one row per following</span>
+  someuser.db               <span class="c"># SQLite database (--sqlite)</span>
+  screenshots/*.png         <span class="c"># screenshots (--shots)</span>
+  images/*.png              <span class="c"># post images (ig-images)</span>
+  .cache.db                 <span class="c"># resume cache (internal)</span></code></pre>
+      </div>
+
+      <h3>Archiving to IG-DATA</h3>
+      <p><code>out/</code> is scratch space — the next scrape can overwrite it.
+        <code>dependencies/import-data.ps1</code> copies each run into a structured archive, keeps every
+        import as a dated snapshot, and regenerates the analysis reports and master index:</p>
+      <div class="codewrap"><span class="codelabel">PowerShell</span>
+<pre><code>.\dependencies\import-data.ps1 --source out/someuser   <span class="c"># archive + report</span>
+.\dependencies\import-data.ps1 --reindex               <span class="c"># rebuild INDEX.md only</span>
+.\dependencies\import-data.ps1 --source out/someuser --no-report</code></pre>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>File</th><th>What it is</th></tr></thead>
+          <tbody>
+            <tr><td><code>INDEX.md</code></td><td class="d">Every profile in one table — followers, engagement, last post, run count</td></tr>
+            <tr><td><code>README.md</code></td><td class="d">One-profile card: stats, quick-read insights, links to every file</td></tr>
+            <tr><td><code>analysis/report.md</code></td><td class="d">Identity, snapshot, insights, engagement, posting pattern, content mix, top posts, hashtags, network, bio signals, run history</td></tr>
+            <tr><td><code>analysis/analytics.json</code></td><td class="d">The same numbers, machine-readable</td></tr>
+            <tr><td><code>latest/</code></td><td class="d">The most recent import — safe to point tooling at</td></tr>
+            <tr><td><code>runs/&lt;timestamp&gt;/</code></td><td class="d">Every import, forever — re-scrapes never overwrite history</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:var(--muted);font-size:.93rem">Media is stored once: <code>runs/&lt;timestamp&gt;/</code>
+        keeps JSON, CSV, <code>.db</code> and screenshots, while multi-GB image folders live only in
+        <code>latest/images/</code>.</p>
+    </section>
+
+    <!-- ============ ANALYTICS ============ -->
+    <section id="analytics">
+      <h2>Built-in analytics</h2>
+      <p class="sub">The scraper computes OSINT metrics automatically on every run:</p>
+      <div class="codewrap"><span class="codelabel">JSON excerpt</span>
+<pre><code>{
+  <span class="k">"engagement"</span>: {
+    <span class="k">"totalLikes"</span>: 1234, <span class="k">"totalComments"</span>: 56,
+    <span class="k">"avgLikes"</span>: 45, <span class="k">"avgComments"</span>: 2,
+    <span class="k">"engagementRate"</span>: "1.23%", <span class="k">"postsAnalyzed"</span>: 30
+  },
+  <span class="k">"posting"</span>: {
+    <span class="k">"postsPerWeek"</span>: "0.21",
+    <span class="k">"bestPostingHour"</span>: "18:00",
+    <span class="k">"bestPostingDay"</span>: "Saturday",
+    <span class="k">"daysActive"</span>: 1000
+  },
+  <span class="k">"account"</span>: { <span class="k">"estimatedCreated"</span>: "2024-01-01T00:00:00.000Z", <span class="k">"estimatedAgeDays"</span>: 1000 },
+  <span class="k">"content"</span>: {
+    <span class="k">"topHashtags"</span>: [{ <span class="k">"tag"</span>: "DevProfile", <span class="k">"count"</span>: 5 }],
+    <span class="k">"topMentions"</span>: [{ <span class="k">"user"</span>: "friend1", <span class="k">"count"</span>: 3 }],
+    <span class="k">"mostLiked"</span>: [{ <span class="k">"shortcode"</span>: "ABC123", <span class="k">"likes"</span>: 500 }],
+    <span class="k">"carouselPosts"</span>: 10, <span class="k">"reelPosts"</span>: 5, <span class="k">"photoPosts"</span>: 15
+  },
+  <span class="k">"network"</span>: {
+    <span class="k">"followerCount"</span>: 299, <span class="k">"followingCount"</span>: 925,
+    <span class="k">"followerFollowingRatio"</span>: "0.32",
+    <span class="k">"verifiedFollowers"</span>: 2, <span class="k">"verifiedFollowing"</span>: 5
+  },
+  <span class="k">"bio"</span>: { <span class="k">"hasEmail"</span>: true, <span class="k">"email"</span>: "user@example.com", <span class="k">"hasUrl"</span>: true, <span class="k">"length"</span>: 150 }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section id="dashboard">
+      <h2>ig-analyzer — live dashboard</h2>
+      <p class="sub">After scraping, analyze the data with a live web dashboard on
+        <code>http://localhost:8080</code>:</p>
+      <div class="codewrap"><span class="codelabel">Bash</span>
+<pre><code>node dependencies/ig-analyzer.mjs                      <span class="c"># auto-detect latest scraped user</span>
+node dependencies/ig-analyzer.mjs --user someuser --port 8080
+.\dependencies\ig-analyzer.ps1 --user someuser         <span class="c"># one-click on Windows</span>
+
+<span class="c"># Also reads archived profiles directly (profile folder, latest/ or a single run)</span>
+.\dependencies\ig-analyzer.ps1 --dir ..\IG-DATA\someuser</code></pre>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Section</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>Profile overview</td><td class="d">Bio, stats, verified/private badges</td></tr>
+            <tr><td>Engagement metrics</td><td class="d">Rate, total/average likes and comments</td></tr>
+            <tr><td>Charts</td><td class="d">Likes per post, posts by hour, posts by day</td></tr>
+            <tr><td>Content analysis</td><td class="d">Top hashtags, top mentions, most liked/commented</td></tr>
+            <tr><td>Posting patterns</td><td class="d">Best time, frequency, account age</td></tr>
+            <tr><td>Network stats</td><td class="d">Follower/following ratio, verified counts</td></tr>
+            <tr><td>Bio analysis</td><td class="d">Email, phone and URL detection</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="shot">
+        <img src="assets/preview.png" alt="ig-harvester CLI and dashboard preview" width="937" height="892" loading="lazy">
+        <figcaption>ig-harvester CLI preview — harvest in progress with analytics output</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section id="faq">
+      <h2>Troubleshooting &amp; FAQ</h2>
+      <dl class="faq">
+        <dt>Why do I get exactly 30 posts when the profile claims more?</dt>
+        <dd>Post links are read from the profile grid, so a run returns only what Instagram serves to
+          your session. The default cap is <code>--posts 30</code> — raise it (<code>--posts 500</code>)
+          or use <code>--posts all</code> for every post the grid serves.</dd>
+
+        <dt>I only got 12 / 24 / 36 posts — is it broken?</dt>
+        <dd>The grid stopped paginating (slow or gated layout). Re-run: the resume cache continues
+          where it stopped, and the log line <code>grid: N permalink(s) - &lt;reason&gt;</code> names the
+          exact stop reason. <code>grid stopped early: N of M posts found</code> is printed whenever
+          the profile header is higher than what the grid returned.</dd>
+
+        <dt>0 posts plus "This account is private"</dt>
+        <dd>The logged-in session doesn't follow the target, or the follow is still pending
+          (<code>Requested</code>). Attach Chrome logged in as the burner that already follows the
+          account — a pending request serves nothing.</dd>
+
+        <dt>0 posts and no warning?</dt>
+        <dd>The profile doesn't exist or the account is blocked. Check the spelling and account status.</dd>
+
+        <dt>Where does the tool write, and can I re-run safely?</dt>
+        <dd>Everything lands in <code>out/&lt;username&gt;/</code>. The SQLite resume cache
+          (<code>.cache.db</code>) makes re-runs incremental by shortcode; pass <code>--no-resume</code>
+          to start fresh. Archive finished runs into <code>IG-DATA</code> before the next scrape of the
+          same profile to keep history intact.</dd>
+
+        <dt>Which flags does the image downloader accept?</dt>
+        <dd><code>ig-images</code> shares the scraper's targeting and connection flags
+          (<code>--profile/--url</code>, <code>--posts</code>, <code>--out</code>, <code>--cdp</code>,
+          <code>--headless</code>, <code>--proxy</code>, <code>--delay-*</code>, <code>--log-level</code>,
+          <code>--config</code>) plus <code>--force</code> — and collects nothing else: no JSON/CSV, no
+          comments, no follower lists.</dd>
+
+        <dt>How do I run it from CI or a script?</dt>
+        <dd>Use action mode with <code>-Yes</code> (non-interactive) and read the exit code:
+          <code>0</code> success, <code>1</code> step/preflight failed, <code>2</code> usage error or
+          cancelled input. <code>-DryRun</code> prints the exact commands first.</dd>
+      </dl>
+    </section>
+
+    <!-- ============ PROJECT ============ -->
+    <section id="project">
+      <h2>Project</h2>
+      <div class="two">
+        <div>
+          <h3>Testing</h3>
+          <div class="codewrap"><span class="codelabel">Bash</span>
+<pre><code>npm run lint
+npm test</code></pre>
+          </div>
+          <h3>Architecture</h3>
+          <ul class="clean">
+            <li><strong>Entry points</strong> — <code>ig-harvester.ps1</code> + four Node CLIs in <code>dependencies/</code></li>
+            <li><strong>src/extractors</strong> — Relay JSON miner, semantic DOM scraper, shared parsers</li>
+            <li><strong>src/scraper</strong> — profile, posts (resume), users, analytics, screenshots, images</li>
+            <li><strong>src/storage</strong> — SQLite resume cache, JSON/CSV/SQLite writers</li>
+            <li><strong>src/utils</strong> — structured logger, retry/backoff, rate limiting, progress</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Requirements</h3>
+          <ul class="clean">
+            <li><strong>Node.js</strong> ≥ 20</li>
+            <li><strong>Chrome</strong> (system) with remote debugging</li>
+            <li><strong>A burner Instagram account</strong> you are authorized to use</li>
+            <li><strong>Optional</strong> — Docker, HTTP/SOCKS5 proxy</li>
+          </ul>
+          <div class="warn"><strong>Ethical use:</strong> ig-harvester is intended for legitimate OSINT
+            research, journalism, security audits and education. Users are responsible for complying
+            with applicable laws, Instagram's Terms of Service and privacy regulations (GDPR, CCPA).
+            Always confirm consent before collecting data about someone. The author assumes no liability
+            for misuse of the software.</div>
+        </div>
+      </div>
+
+      <h3>Links</h3>
       <p>
         <a href="https://github.com/anurag-panda-dev/ig-harvester">GitHub repository</a> ·
         <a href="https://github.com/anurag-panda-dev/ig-harvester/releases">Releases</a> ·
         <a href="https://github.com/anurag-panda-dev/ig-harvester#readme">Documentation (README)</a> ·
+        <a href="https://github.com/anurag-panda-dev/ig-harvester/blob/main/GUIDE.md">Guide</a> ·
         <a href="https://github.com/anurag-panda-dev/ig-harvester/blob/main/CONTRIBUTING.md">Contributing</a> ·
         <a href="https://github.com/anurag-panda-dev/ig-harvester/blob/main/LICENSE">MIT License</a> ·
         <a href="https://github.com/anurag-panda-dev">Author — Anurag Panda</a>
