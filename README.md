@@ -17,6 +17,13 @@
 </p>
 
 <p align="center">
+  🌐 <a href="https://anurag-panda-dev.github.io/ig-harvester/"><b>Website</b></a> ·
+  <a href="https://github.com/anurag-panda-dev/ig-harvester#quick-start">Quick Start</a> ·
+  <a href="https://github.com/anurag-panda-dev/ig-harvester/releases">Releases</a> ·
+  <a href="https://github.com/anurag-panda-dev/ig-harvester#cli-flags">CLI Flags</a>
+</p>
+
+<p align="center">
   <img src="assets/preview.png" alt="ig-harvester CLI Preview">
 </p>
 
