@@ -1,6 +1,6 @@
 ![ig-harvester banner](assets/banner.png)
 
-# ig-harvester
+# IG-HARVESTER is an open-source (MIT) Instagram OSINT tool for collecting posts, comments, followers and media via Playwright CDP.
 
 <p align="center">
   <a href="https://github.com/anurag-panda-dev/ig-harvester/releases"><img src="https://img.shields.io/github/v/release/anurag-panda-dev/ig-harvester?label=release&color=blue" alt="Release"></a>
