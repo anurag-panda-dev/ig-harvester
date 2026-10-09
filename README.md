@@ -14,6 +14,10 @@
   A production-ready Playwright-based Instagram scraper that drives your own logged-in Chrome via CDP.
 </p>
 
+<p align="center">
+  <img src="assets/preview.png" alt="ig-harvester CLI Preview">
+</p>
+
 ---
 
 ## Table of Contents
