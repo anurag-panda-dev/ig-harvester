@@ -57,3 +57,6 @@ analyzer.log
 
 # Local promo articles (published to dev.to / Hashnode, not shipped with the repo)
 promo/
+
+# Local social media posting guide (not shipped with the repo)
+assets/POST.md

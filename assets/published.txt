@@ -1,0 +1,43 @@
+ig-harvester — Instagram OSINT Collector
+========================================
+
+Project    : ig-harvester
+Version    : 2.0.0
+License    : MIT
+Language   : JavaScript (Node.js >= 20)
+Platform   : Windows | macOS | Linux
+Author     : Anurag Panda (github.com/anurag-panda-dev)
+Published  : 2026-10-09
+
+DESCRIPTION
+-----------
+A production-ready, Playwright-based Instagram OSINT toolkit that drives your own
+logged-in Chrome via the Chrome DevTools Protocol (CDP) — no API keys, nothing
+leaves your machine.
+
+Harvests profiles, posts, comment threads (with replies), followers and following
+lists into JSON / CSV / SQLite, downloads every post and carousel image at full
+resolution as timestamped PNGs, computes engagement, posting-pattern, network and
+bio-intel analytics, and serves it all in a live local dashboard. Ships with a
+single PowerShell entry point, resume caching, proxy support, Docker and tests.
+
+LINKS
+-----
+GitHub repository : https://github.com/anurag-panda-dev/ig-harvester
+Website (Pages)   : https://anurag-panda-dev.github.io/ig-harvester/
+Release v2.0.0    : https://github.com/anurag-panda-dev/ig-harvester/releases/tag/v2.0.0
+dev.to article    : https://dev.to/anurag_panda/ig-harvester-an-open-source-instagram-osint-toolkit-built-on-playwright-cdp-33l7
+Hashnode article  : https://anuragpanda-dev.hashnode.dev/3-traps-that-broke-my-instagram-scraper
+
+QUICK START
+-----------
+  git clone https://github.com/anurag-panda-dev/ig-harvester.git
+  cd ig-harvester
+  npm install
+  .\ig-harvester.ps1 -Action Doctor
+
+DISCLAIMER
+----------
+Intended for legitimate OSINT research, journalism, security audits and education.
+Users are responsible for complying with applicable laws, Instagram's Terms of
+Service and privacy regulations (GDPR, CCPA).
