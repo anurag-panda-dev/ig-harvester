@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>ig-harvester — Open-Source Instagram OSINT Tool (Playwright)</title>
+  <meta name="description" content="ig-harvester is a free, open-source (MIT) Instagram OSINT tool built on Playwright. Harvest profiles, posts, comments, followers and following into JSON, CSV or SQLite, download full-resolution images, and analyze results in a live local dashboard.">
+  <meta name="author" content="Anurag Panda">
+  <meta name="keywords" content="ig-harvester, Instagram OSINT, Instagram scraper, Playwright scraper, open source intelligence, social media OSINT, Instagram scraper Node.js">
+  <link rel="canonical" href="https://anurag-panda-dev.github.io/ig-harvester/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ig-harvester">
+  <meta property="og:title" content="ig-harvester — Open-Source Instagram OSINT Tool">
+  <meta property="og:description" content="Free, MIT-licensed Instagram OSINT harvester: posts, comments, followers, images and analytics, driven by your own logged-in Chrome via CDP.">
+  <meta property="og:url" content="https://anurag-panda-dev.github.io/ig-harvester/">
+  <meta property="og:image" content="https://anurag-panda-dev.github.io/ig-harvester/assets/banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ig-harvester — Open-Source Instagram OSINT Tool">
+  <meta name="twitter:description" content="Free, MIT-licensed Instagram OSINT harvester: posts, comments, followers, images and analytics, driven by your own logged-in Chrome via CDP.">
+  <meta name="twitter:image" content="https://anurag-panda-dev.github.io/ig-harvester/assets/banner.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "ig-harvester",
+        "alternateName": "ig-harvester Instagram OSINT Collector",
+        "description": "ig-harvester is a free, open-source Instagram OSINT tool that collects profiles, posts, comments, followers and following through your own logged-in Chrome via the Chrome DevTools Protocol. It exports JSON, CSV and SQLite, downloads full-resolution post and carousel images, computes engagement and posting-pattern analytics, and ships a live local dashboard.",
+        "url": "https://anurag-panda-dev.github.io/ig-harvester/",
+        "codeRepository": "https://github.com/anurag-panda-dev/ig-harvester",
+        "downloadUrl": "https://github.com/anurag-panda-dev/ig-harvester",
+        "license": "https://spdx.org/licenses/MIT.html",
+        "version": "2.0.0",
+        "softwareVersion": "2.0.0",
+        "releaseNotes": "https://github.com/anurag-panda-dev/ig-harvester/releases/tag/v2.0.0",
+        "applicationCategory": "DeveloperApplication",
+        "applicationSubCategory": "OSINT tool",
+        "operatingSystem": "Windows, macOS, Linux",
+        "runtimePlatform": "Node.js >= 20",
+        "programmingLanguage": ["JavaScript", "Node.js"],
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "datePublished": "2026-10-07",
+        "author": {
+          "@type": "Person",
+          "name": "Anurag Panda",
+          "url": "https://github.com/anurag-panda-dev"
+        },
+        "publisher": {
+          "@type": "Person",
+          "name": "Anurag Panda"
+        },
+        "screenshot": "https://anurag-panda-dev.github.io/ig-harvester/assets/preview.png",
+        "featureList": [
+          "Triple-source extraction: embedded Relay JSON, semantic DOM and screenshots",
+          "Posts, comment threads with replies, followers and following lists",
+          "Full-resolution image and carousel downloader with timestamped PNG names",
+          "JSON, CSV and SQLite output with resume caching",
+          "Engagement, posting-pattern, network and bio-intel analytics",
+          "Live local analysis dashboard",
+          "HTTP and SOCKS5 proxy support",
+          "Docker support"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "name": "ig-harvester",
+        "url": "https://anurag-panda-dev.github.io/ig-harvester/",
+        "publisher": { "@type": "Person", "name": "Anurag Panda" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://anurag-panda-dev.github.io/ig-harvester/#webpage",
+        "url": "https://anurag-panda-dev.github.io/ig-harvester/",
+        "name": "ig-harvester — Open-Source Instagram OSINT Tool (Playwright)",
+        "isPartOf": { "@id": "https://anurag-panda-dev.github.io/ig-harvester/#webpage" },
+        "primaryImageOfPage": "https://anurag-panda-dev.github.io/ig-harvester/assets/banner.png",
+        "datePublished": "2026-10-07",
+        "dateModified": "2026-10-09",
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anurag-panda-dev.github.io/ig-harvester/" },
+            { "@type": "ListItem", "position": 2, "name": "GitHub Repository", "item": "https://github.com/anurag-panda-dev/ig-harvester" }
+          ]
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0d1117; --panel: #161b22; --border: #30363d;
+      --text: #e6edf3; --muted: #9198a1; --accent: #58a6ff; --green: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    header { padding: 56px 0 32px; text-align: center; }
+    header img { max-width: 100%; border-radius: 12px; }
+    h1 { font-size: 2.2rem; margin: 24px 0 8px; }
+    .tagline { color: var(--muted); font-size: 1.1rem; margin: 0 auto; max-width: 640px; }
+    .badges { margin-top: 18px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .badges img { height: 20px; }
+    .cta { margin-top: 26px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block; padding: 11px 22px; border-radius: 8px; font-weight: 600;
+      border: 1px solid var(--border); color: var(--text);
+    }
+    .btn.primary { background: var(--green); border-color: var(--green); color: #04210c; }
+    .btn:hover { text-decoration: none; filter: brightness(1.08); }
+    section { padding: 28px 0; border-top: 1px solid var(--border); }
+    h2 { font-size: 1.45rem; margin: 0 0 14px; }
+    p.lead { font-size: 1.05rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .card h3 { margin: 0 0 6px; font-size: 1rem; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; }
+    pre {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px; overflow-x: auto; font-size: .88rem; line-height: 1.55;
+    }
+    code { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+    :not(pre) > code {
+      background: rgba(110,118,129,.25); padding: 2px 6px; border-radius: 6px; font-size: .88em;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; background: var(--panel); }
+    td code { white-space: nowrap; }
+    .note {
+      background: rgba(188,143,255,.08); border: 1px solid rgba(188,143,255,.35);
+      border-radius: 10px; padding: 14px 16px; font-size: .93rem; color: var(--muted);
+    }
+    footer { padding: 30px 0 48px; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
+    .disclaimer { font-size: .88rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <header class="wrap">
+    <img src="assets/banner.png" alt="ig-harvester banner" width="900" height="300">
+    <h1>ig-harvester</h1>
+    <p class="tagline">Instagram OSINT Collector — a production-ready, Playwright-based scraper that drives your own logged-in Chrome via CDP.</p>
+    <div class="badges">
+      <img src="https://img.shields.io/github/v/release/anurag-panda-dev/ig-harvester?label=release&color=blue" alt="Release">
+      <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT">
+      <img src="https://img.shields.io/badge/node-%3E%3D20-orange.svg" alt="Node.js >= 20">
+      <img src="https://img.shields.io/github/stars/anurag-panda-dev/ig-harvester?style=flat&logo=github&label=stars" alt="GitHub stars">
+      <img src="https://img.shields.io/github/last-commit/anurag-panda-dev/ig-harvester" alt="Last commit">
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/anurag-panda-dev/ig-harvester">View on GitHub</a>
+      <a class="btn" href="https://github.com/anurag-panda-dev/ig-harvester/releases/latest">Download v2.0.0</a>
+      <a class="btn" href="https://github.com/anurag-panda-dev/ig-harvester#quick-start">Quick Start</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <section>
+      <h2>What is ig-harvester?</h2>
+      <p class="lead">
+        <strong>ig-harvester is a free, open-source (MIT) Instagram OSINT tool</strong> for legitimate
+        research, journalism, security audits and education. It attaches to a Chrome window you are
+        already logged into (via the Chrome DevTools Protocol), so it sees exactly what your session
+        sees — then harvests a target profile into structured, analyzable data: posts, comment
+        threads with replies, follower and following lists, media URLs, hashtags and mentions.
+      </p>
+      <p>
+        Everything is exported as <strong>JSON, CSV and SQLite</strong>, with a resume cache that lets
+        interrupted runs continue where they stopped. A companion downloader saves every post image —
+        each carousel slide included — as a full-resolution, timestamped PNG, and the
+        <strong>ig-analyzer dashboard</strong> turns the harvest into engagement, posting-pattern,
+        network and bio-intel metrics on a local web page.
+      </p>
+    </section>
+
+    <section>
+      <h2>Features</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Triple-source extraction</h3>
+          <p>Embedded Relay JSON + semantic DOM + screenshots, cross-checked for complete payloads.</p>
+        </div>
+        <div class="card">
+          <h3>Full profile harvest</h3>
+          <p>Posts (<code>--posts all</code>), comment threads with replies and like counts, followers, following.</p>
+        </div>
+        <div class="card">
+          <h3>Image downloader</h3>
+          <p>Every post image and carousel slide saved as a real PNG in the original upload resolution.</p>
+        </div>
+        <div class="card">
+          <h3>Resume caching</h3>
+          <p>SQLite cache by shortcode — interrupt a run and re-run it, it continues where it stopped.</p>
+        </div>
+        <div class="card">
+          <h3>Built-in analytics</h3>
+          <p>Engagement rate, best posting hour/day, top hashtags and mentions, follower/following ratio, bio signals.</p>
+        </div>
+        <div class="card">
+          <h3>Live dashboard</h3>
+          <p><code>ig-analyzer</code> serves charts and metrics for any scraped or archived profile on localhost.</p>
+        </div>
+        <div class="card">
+          <h3>Operational security</h3>
+          <p>HTTP/SOCKS5 proxy support, jittered human-like delays, retry with exponential backoff.</p>
+        </div>
+        <div class="card">
+          <h3>Outputs &amp; deployment</h3>
+          <p>JSON / CSV / SQLite writers, structured logging, Docker image, single PowerShell entry point.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Quick start</h2>
+<pre><code>git clone https://github.com/anurag-panda-dev/ig-harvester.git
+cd ig-harvester
+npm install
+
+# 1. Launch Chrome with remote debugging (dedicated profile)
+.\dependencies\launch-chrome-debug.ps1
+
+# 2. Log into a burner Instagram account in that window
+
+# 3. Harvest
+node dependencies/scrape-ig.mjs --profile someuser --posts 50 --comments --followers --following --sqlite
+
+# Download every post image (carousels included)
+node dependencies/ig-images.mjs --profile someuser --posts 50
+
+# Analyze the results
+node dependencies/ig-analyzer.mjs --user someuser</code></pre>
+      <p>Or use the interactive entry point: <code>.\ig-harvester.ps1</code> — a numbered menu that
+        walks you through settings, plus automation-friendly actions
+        (<code>Scrape</code>, <code>Images</code>, <code>Full</code>, <code>Analyze</code>, <code>Archive</code>, <code>Doctor</code>).</p>
+    </section>
+
+    <section>
+      <h2>CLI flags</h2>
+      <table>
+        <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>--profile &lt;name&gt;</code></td><td>–</td><td>Target username</td></tr>
+          <tr><td><code>--posts N|all</code></td><td><code>30</code></td><td>Max posts to scrape — <code>all</code> means every post the grid serves</td></tr>
+          <tr><td><code>--comments</code></td><td>off</td><td>Harvest post comments with threads</td></tr>
+          <tr><td><code>--followers</code> / <code>--following</code></td><td>off</td><td>Harvest the full lists</td></tr>
+          <tr><td><code>--sqlite</code></td><td>off</td><td>Also write a SQLite database</td></tr>
+          <tr><td><code>--proxy URL</code></td><td>–</td><td>HTTP/SOCKS5 proxy</td></tr>
+          <tr><td><code>--cdp URL</code></td><td><code>http://127.0.0.1:9222</code></td><td>Chrome CDP endpoint</td></tr>
+          <tr><td><code>--config FILE</code></td><td>–</td><td>JSON config (defaults &lt; config &lt; CLI)</td></tr>
+          <tr><td><code>--delay-min / --delay-max</code></td><td><code>900</code> / <code>2600</code></td><td>Jittered delay between actions (ms)</td></tr>
+        </tbody>
+      </table>
+      <p><a href="https://github.com/anurag-panda-dev/ig-harvester#cli-flags">Full CLI reference in the README →</a></p>
+    </section>
+
+    <section>
+      <h2>Output layout</h2>
+<pre><code>out/someuser/
+  someuser.json             # full payload + analytics
+  someuser-posts.csv        # one row per post
+  someuser-comments.csv     # one row per comment
+  someuser-followers.csv    # one row per follower
+  someuser-following.csv    # one row per following
+  someuser.db               # SQLite database (--sqlite)
+  screenshots/*.png         # screenshots (--shots)
+  images/*.png              # post images (ig-images)</code></pre>
+      <p>Runs can be archived into a structured <code>IG-DATA</code> store with dated snapshots,
+        per-profile reports and a master index — re-scrapes never overwrite history.</p>
+    </section>
+
+    <section>
+      <h2>Requirements</h2>
+      <p>Node.js &gt;= 20, system <a href="https://www.google.com/chrome/">Chrome</a>, and a burner
+        Instagram account you are authorized to use. Docker is optional
+        (<code>docker build -t ig-harvester .</code>). Tests: <code>npm test</code>.</p>
+      <div class="note">
+        <strong>Ethical use:</strong> ig-harvester is intended for legitimate OSINT research,
+        journalism, security audits and education. Users are responsible for complying with
+        applicable laws, Instagram's Terms of Service and privacy regulations (GDPR, CCPA).
+        Always confirm consent before collecting data about someone.
+      </div>
+    </section>
+
+    <section>
+      <h2>Links</h2>
+      <p>
+        <a href="https://github.com/anurag-panda-dev/ig-harvester">GitHub repository</a> ·
+        <a href="https://github.com/anurag-panda-dev/ig-harvester/releases">Releases</a> ·
+        <a href="https://github.com/anurag-panda-dev/ig-harvester#readme">Documentation (README)</a> ·
+        <a href="https://github.com/anurag-panda-dev/ig-harvester/blob/main/CONTRIBUTING.md">Contributing</a> ·
+        <a href="https://github.com/anurag-panda-dev/ig-harvester/blob/main/LICENSE">MIT License</a> ·
+        <a href="https://github.com/anurag-panda-dev">Author — Anurag Panda</a>
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="wrap">
+    <p>MIT © 2026 <a href="https://github.com/anurag-panda-dev">Anurag Panda</a>. Inspired by Sherlock,
+      Recon-ng and the OSINT community.</p>
+    <p class="disclaimer">This site is documentation for the ig-harvester project. The author assumes
+      no liability for misuse of the software.</p>
+  </footer>
+
+</body>
+</html>

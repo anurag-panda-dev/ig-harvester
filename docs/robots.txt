@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anurag-panda-dev.github.io/ig-harvester/sitemap.xml
