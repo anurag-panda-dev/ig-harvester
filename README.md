@@ -1,4 +1,7 @@
-![ig-harvester banner](assets/banner.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png">
+  <img src="assets/banner.png" alt="ig-harvester banner" width="714">
+</picture>
 
 # IG-HARVESTER is an open-source (MIT) Instagram OSINT tool for collecting posts, comments, followers and media via Playwright CDP.
 
